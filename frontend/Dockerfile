@@ -9,7 +9,7 @@ ENV VITE_API_BASE_URL=${VITE_API_BASE_URL} \
 COPY . .
 RUN npm run build
 
-FROM nginxinc/nginx-unprivileged:1.28-alpine AS runtime
+FROM nginxinc/nginx-unprivileged:1.31-alpine AS runtime
 USER root
 RUN apk del nginx-module-geoip nginx-module-image-filter nginx-module-njs nginx-module-xslt curl \
     && apk add --no-cache --upgrade nginx \
