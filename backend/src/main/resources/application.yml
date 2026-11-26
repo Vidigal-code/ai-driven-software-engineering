@@ -1,0 +1,75 @@
+spring:
+  application:
+    name: library-api
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/library}
+    username: ${SPRING_DATASOURCE_USERNAME:library}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    hikari:
+      maximum-pool-size: ${DB_POOL_SIZE:10}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+  jackson:
+    deserialization:
+      fail-on-unknown-properties: true
+  mvc:
+    problemdetails:
+      enabled: true
+server:
+  address: ${SERVER_ADDRESS:0.0.0.0}
+  port: ${SERVER_PORT:8080}
+  error:
+    include-message: never
+    include-stacktrace: never
+  tomcat:
+    max-http-form-post-size: 64KB
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: never
+      probes:
+        enabled: true
+springdoc:
+  api-docs:
+    enabled: ${OPENAPI_ENABLED:true}
+  swagger-ui:
+    enabled: ${OPENAPI_ENABLED:true}
+    persist-authorization: false
+library:
+  demo-data:
+    enabled: ${DEMO_DATA_ENABLED:false}
+  security:
+    jwt-secret: ${JWT_SECRET}
+    issuer: ${JWT_ISSUER:library-api}
+    audience: ${JWT_AUDIENCE:library-web}
+    access-token-ttl: ${ACCESS_TOKEN_TTL:PT15M}
+    refresh-token-ttl: ${REFRESH_TOKEN_TTL:P7D}
+    cookie-secure: ${COOKIE_SECURE:false}
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000}
+  pagination:
+    max-size: ${MAX_PAGE_SIZE:100}
+  dashboard:
+    recent-limit: ${RECENT_BOOKS_LIMIT:5}
+  auth:
+    max-attempts: ${AUTH_MAX_ATTEMPTS:30}
+    window: ${AUTH_RATE_WINDOW:PT1M}
+    capacity: ${AUTH_RATE_CAPACITY:10000}
+  bootstrap:
+    enabled: ${BOOTSTRAP_ADMIN_ENABLED:false}
+    email: ${BOOTSTRAP_ADMIN_EMAIL:}
+    password: ${BOOTSTRAP_ADMIN_PASSWORD:}
+    name: ${BOOTSTRAP_ADMIN_NAME:Administrador}
+logging:
+  structured:
+    format:
+      console: logstash

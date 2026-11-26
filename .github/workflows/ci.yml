@@ -1,0 +1,213 @@
+name: Quality gates
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: quality-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+          cache-dependency-path: backend/pom.xml
+      - name: Unit, integration, coverage, static analysis and package
+        run: chmod +x mvnw && ./mvnw --batch-mode --no-transfer-progress verify
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: backend-evidence
+          path: |
+            backend/target/surefire-reports/
+            backend/target/failsafe-reports/
+            backend/target/site/jacoco/
+            backend/target/spotbugsXml.xml
+            backend/target/library-api.jar
+          if-no-files-found: warn
+
+  frontend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm run test:coverage
+      - run: npm run build
+      - run: npm audit --audit-level=high
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: frontend-evidence
+          path: |
+            frontend/coverage/
+            frontend/dist/
+            frontend/artifacts/
+          if-no-files-found: warn
+
+  dependencies:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: scripts/requirements-validation.txt
+      - name: Documentation, delivery and Postman schema
+        run: |
+          python -m pip install -r scripts/requirements-validation.txt
+          python scripts/validate-project.py
+          node --test scripts/collect-evidence.test.mjs
+      - name: GitHub Actions validation
+        run: |
+          go install github.com/rhysd/actionlint/cmd/actionlint@v1.7.7
+          "$(go env GOPATH)/bin/actionlint" .github/workflows/ci.yml
+      - name: Dependency, configuration and secret scan
+        uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1
+        with:
+          scan-type: fs
+          version: v0.76.2
+          scan-ref: .
+          scanners: vuln,secret,misconfig
+          severity: HIGH,CRITICAL
+          exit-code: '1'
+          format: json
+          output: artifacts/trivy-filesystem.json
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: configuration-security-evidence
+          path: artifacts/
+          if-no-files-found: warn
+
+  integration:
+    needs: [backend, frontend, dependencies]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: backend-evidence
+          path: backend/target
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: frontend-evidence
+          path: frontend
+      - name: Publish available validation evidence into the local build
+        run: node scripts/collect-evidence.mjs
+      - name: Ephemeral configuration
+        run: node scripts/init-env.mjs --admin-email ci-admin@example.invalid
+      - name: Compose validation
+        run: docker compose config --quiet
+      - name: Build and start healthy services
+        run: docker compose up --build --detach --wait --wait-timeout 180
+      - name: Real HTTP smoke tests
+        run: node --env-file=.env scripts/smoke.mjs
+      - name: Install browser tests
+        working-directory: frontend
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+      - name: End-to-end browser tests
+        working-directory: frontend
+        env:
+          E2E_BASE_URL: http://localhost:3000
+          PLAYWRIGHT_SKIP_WEBSERVER: 'true'
+        run: npm run test:e2e
+      - name: Browser flows with the real API and database
+        working-directory: frontend
+        env:
+          E2E_BASE_URL: http://localhost:3000
+        run: node --env-file=../.env node_modules/@playwright/test/cli.js test -c playwright.integration.config.ts
+      - name: Backend container vulnerabilities
+        uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1
+        with:
+          image-ref: library-engineering-backend:local
+          version: v0.76.2
+          timeout: 15m
+          severity: HIGH,CRITICAL
+          exit-code: '1'
+          format: json
+          output: artifacts/trivy-backend.json
+      - name: Frontend container vulnerabilities
+        uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1
+        with:
+          image-ref: library-engineering-frontend:local
+          version: v0.76.2
+          severity: HIGH,CRITICAL
+          exit-code: '1'
+          format: json
+          output: artifacts/trivy-frontend.json
+      - name: PostgreSQL container vulnerabilities
+        uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1
+        with:
+          image-ref: library-engineering-postgres:local
+          version: v0.76.2
+          severity: HIGH,CRITICAL
+          exit-code: '1'
+          format: json
+          output: artifacts/trivy-postgres.json
+      - name: Capture service state
+        if: always()
+        run: |
+          mkdir -p artifacts
+          docker compose ps --format json > artifacts/compose-services.json
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: integrated-evidence
+          path: |
+            artifacts/
+            frontend/playwright-report/
+            frontend/test-results/
+            frontend/artifacts/playwright.json
+            frontend/artifacts/playwright-integration.json
+          if-no-files-found: warn
+      - name: Stop isolated services
+        if: always()
+        run: docker compose down --volumes

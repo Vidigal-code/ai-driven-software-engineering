@@ -1,0 +1,101 @@
+name: library-engineering
+
+services:
+  postgres:
+    image: library-engineering-postgres:local
+    build:
+      context: ./postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_DB: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Run node scripts/init-env.mjs first}
+      APP_DB_NAME: ${APP_DB_NAME:-library}
+      APP_DB_USER: ${APP_DB_USER:-library_app}
+      APP_DB_PASSWORD: ${APP_DB_PASSWORD:?Application database password is required}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/postgres-init.sh:/docker-entrypoint-initdb.d/10-library.sh:ro
+    healthcheck:
+      test: [CMD-SHELL, 'pg_isready -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"']
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 10s
+    ports:
+      - '0.0.0.0:${POSTGRES_PORT:-5432}:5432'
+      - '[::1]:${POSTGRES_PORT:-5432}:5432'
+    networks: [data, edge]
+    restart: unless-stopped
+    security_opt: [no-new-privileges:true]
+    mem_limit: 512m
+
+  backend:
+    image: library-engineering-backend:local
+    build:
+      context: ./backend
+    environment:
+      SERVER_ADDRESS: 0.0.0.0
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${APP_DB_NAME:-library}
+      SPRING_DATASOURCE_USERNAME: ${APP_DB_USER:-library_app}
+      SPRING_DATASOURCE_PASSWORD: ${APP_DB_PASSWORD:?Application database password is required}
+      DB_POOL_SIZE: ${DB_POOL_SIZE:-10}
+      MAX_PAGE_SIZE: ${MAX_PAGE_SIZE:-100}
+      RECENT_BOOKS_LIMIT: ${RECENT_BOOKS_LIMIT:-5}
+      AUTH_MAX_ATTEMPTS: ${AUTH_MAX_ATTEMPTS:-30}
+      AUTH_RATE_WINDOW: ${AUTH_RATE_WINDOW:-PT1M}
+      AUTH_RATE_CAPACITY: ${AUTH_RATE_CAPACITY:-10000}
+      JWT_SECRET: ${JWT_SECRET:?A base64 encoded JWT secret is required}
+      JWT_ISSUER: ${JWT_ISSUER:-library-api}
+      JWT_AUDIENCE: ${JWT_AUDIENCE:-library-web}
+      ACCESS_TOKEN_TTL: ${ACCESS_TOKEN_TTL:-PT15M}
+      REFRESH_TOKEN_TTL: ${REFRESH_TOKEN_TTL:-P7D}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:3000}
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
+      OPENAPI_ENABLED: ${OPENAPI_ENABLED:-true}
+      BOOTSTRAP_ADMIN_ENABLED: ${BOOTSTRAP_ADMIN_ENABLED:-false}
+      BOOTSTRAP_ADMIN_EMAIL: ${BOOTSTRAP_ADMIN_EMAIL:-}
+      BOOTSTRAP_ADMIN_PASSWORD: ${BOOTSTRAP_ADMIN_PASSWORD:-}
+      BOOTSTRAP_ADMIN_NAME: ${BOOTSTRAP_ADMIN_NAME:-Library Administrator}
+      DEMO_DATA_ENABLED: ${DEMO_DATA_ENABLED:-false}
+      JAVA_TOOL_OPTIONS: -XX:MaxRAMPercentage=75.0
+    ports:
+      - '0.0.0.0:${BACKEND_PORT:-8080}:8080'
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks: [data, edge]
+    restart: unless-stopped
+    security_opt: [no-new-privileges:true]
+    cap_drop: [ALL]
+    read_only: true
+    tmpfs: [/tmp]
+    mem_limit: 768m
+
+  frontend:
+    image: library-engineering-frontend:local
+    build:
+      context: ./frontend
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-/api/v1}
+        VITE_HEALTH_URL: ${VITE_HEALTH_URL:-/actuator/health}
+    ports:
+      - '0.0.0.0:${FRONTEND_PORT:-3000}:8080'
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks: [edge]
+    restart: unless-stopped
+    security_opt: [no-new-privileges:true]
+    cap_drop: [ALL]
+    read_only: true
+    tmpfs: [/tmp]
+    mem_limit: 128m
+
+volumes:
+  postgres_data:
+
+networks:
+  data:
+    internal: true
+  edge:
