@@ -5,7 +5,7 @@
 <details>
 <summary><strong>Ver Detalhes</strong></summary>
 
-Registro em 26/11/2026. Este documento distingue resultados efetivamente executados, snapshots anteriores e verificações ainda pendentes. Os arquivos de relatório são artefatos locais ignorados pelo Git; a ausência deles em um checkout novo não representa aprovação nem falha. Gere-os novamente pelos comandos do [README](../README.md) e da [estratégia de testes](testing.md).
+Snapshot inicial em 26/11/2026, anterior às features006–008. Consulte a [validação atualizada](validation-updates.md) para interface, Swagger e CI. Este documento distingue resultados efetivamente executados, snapshots anteriores e verificações ainda pendentes. Os arquivos de relatório são artefatos locais ignorados pelo Git; a ausência deles em um checkout novo não representa aprovação nem falha. Gere-os novamente pelos comandos do [README](../README.md) e da [estratégia de testes](testing.md).
 
 ## Frontend validado
 
@@ -99,7 +99,7 @@ O Studio mostra “Modo demonstração — execução simulada”, inclusive em 
 <details>
 <summary><strong>View Details</strong></summary>
 
-Recorded on 2026-11-26. This document distinguishes checks that actually ran, earlier snapshots and pending verification. Report files are local Git-ignored artifacts; their absence in a fresh checkout means neither approval nor failure. Regenerate them with the commands in the [README](../README.md) and [testing strategy](testing.md).
+Initial snapshot on 2026-11-26, before features006–008. See [updated validation](validation-updates.md) for the interface, Swagger and CI. This document distinguishes checks that actually ran, earlier snapshots and pending verification. Report files are local Git-ignored artifacts; their absence in a fresh checkout means neither approval nor failure. Regenerate them with the commands in the [README](../README.md) and [testing strategy](testing.md).
 
 ## Validated frontend
 
