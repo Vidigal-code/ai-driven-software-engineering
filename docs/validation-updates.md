@@ -27,6 +27,7 @@ O Swagger publica 38 exemplos em 15 operações, regras, parâmetros, respostas,
 | Sonar de projeto | Gate OK; 0 issues abertas, 0% duplicação, 95,9% cobertura de código novo | artifacts/sonar-swagger-green.json |
 | Sonar frontend | 16 arquivos da interface sem issues; teste/config Swagger analisados separadamente | frontend/artifacts/sonar-polish.json e artifacts/swagger-sonar-final.json |
 | Smoke de serviços | 14 verificações aprovadas | artifacts/smoke.json |
+| Imagens finais frontend/backend | 0 vulnerabilidades HIGH/CRITICAL; três containers saudáveis, PostgreSQL preservado | artifacts/trivy-frontend-feature-final.json, trivy-backend-feature-final.json e compose-feature-final.json |
 | Documentação e entrega | 65 documentos Markdown, 29 requests Postman e 3 configurações aprovados | scripts/validate-project.py |
 
 Cobertura JaCoCo de negócio: **214/217 linhas (98,62%) e 155/160 branches (96,88%)**, com gate mínimo 80%/75%. O relatório completo contém **545/555 linhas (98,20%) e 215/237 branches (90,72%)**. O relatório restrito continua em `target/site/jacoco`, utilizado pelo coletor e pelo gate de negócio; o amplo está em `target/site/jacoco-full`, utilizado pelo Sonar. Os dois vêm da mesma execução instrumentada. Nenhum limite foi reduzido ou nova exclusão criada para obter aprovação.
@@ -40,7 +41,7 @@ O frontend mantém 100% das linhas e 98,18% dos branches no escopo de lógica de
 - RED do CI inicial: [run45907829637](https://github.com/Vidigal-code/ai-driven-software-engineering/actions/runs/45907829637) aprovou backend/frontend, mas Trivy recebeu429 do Maven Central. O scanner foi movido para depois do Maven no mesmo runner, reutilizando os POMs resolvidos; scanners, severidades e bloqueios permanecem iguais.
 
 ## Verificação remota e limites
-O [workflow Quality gates](https://github.com/Vidigal-code/ai-driven-software-engineering/actions/workflows/ci.yml) inclui agora o roteiro Swagger real e publica ambos os relatórios JaCoCo. O registro final deve identificar run, SHA e jobs aprovados; validação YAML/actionlint local não comprova execução remota. A execução do novo commit ainda está pendente neste registro inicial de entrega.
+O [workflow Quality gates](https://github.com/Vidigal-code/ai-driven-software-engineering/actions/workflows/ci.yml) inclui agora o roteiro Swagger real e publica ambos os relatórios JaCoCo. A execução [45914734649](https://github.com/Vidigal-code/ai-driven-software-engineering/actions/runs/45914734649), no commit `04e3899792279189a4e38039bcc5db213ca27f11`, concluiu com sucesso os quatro jobs: backend, frontend, dependencies e integration. A integração aprovou build/health, smoke, 18 testes de contrato no navegador, dois fluxos com API real, quatro testes Swagger e scans das três imagens. As seis execuções Dependabot Updates desse SHA também passaram. Evidências remotas: `artifacts/ci-push1-run.json` e `artifacts/ci-push1-summary.json`. Este é um resultado real do GitHub, distinto da validação YAML/actionlint local.
 
 Os cinco runs iniciais de Dependabot Updates passaram. PRs de atualização major têm seu próprio estado: por exemplo, o PR isolado de jest-dom8 exige Vitest5 e não deve ser aprovado forçando a instalação. O grupo de dependências de testes mantém essas atualizações acopladas, sem alterar a stack instalada.
 
@@ -75,6 +76,7 @@ Swagger publishes 38 examples across 15 operations, rules, parameters, responses
 | Project Sonar | Gate OK; 0 open issues, 0% duplication, 95.9% new-code coverage | artifacts/sonar-swagger-green.json |
 | Frontend Sonar | 16 interface files without issues; Swagger test/config analyzed separately | frontend/artifacts/sonar-polish.json and artifacts/swagger-sonar-final.json |
 | Service smoke | 14 checks passed | artifacts/smoke.json |
+| Final frontend/backend images | 0 HIGH/CRITICAL vulnerabilities; three healthy containers, PostgreSQL preserved | artifacts/trivy-frontend-feature-final.json, trivy-backend-feature-final.json and compose-feature-final.json |
 | Documentation and delivery | 65 Markdown documents, 29 Postman requests and 3 configurations passed | scripts/validate-project.py |
 
 Business JaCoCo coverage: **214/217 lines (98.62%) and 155/160 branches (96.88%)**, with the unchanged 80%/75% gate. The full report contains **545/555 lines (98.20%) and 215/237 branches (90.72%)**. The restricted report remains at `target/site/jacoco` for the collector and business gate; the full report is at `target/site/jacoco-full` for Sonar. Both use the same instrumented execution. No threshold was reduced or new exclusion introduced to obtain approval.
@@ -88,7 +90,7 @@ Frontend coverage remains 100% lines and 98.18% branches within the configured b
 - Initial CI RED: [run45907829637](https://github.com/Vidigal-code/ai-driven-software-engineering/actions/runs/45907829637) passed backend/frontend, but Trivy received429 from Maven Central. Scanning was moved after Maven on the same runner to reuse resolved POMs; scanners, severities and blocking behavior are unchanged.
 
 ## Remote verification and limits
-The [Quality gates workflow](https://github.com/Vidigal-code/ai-driven-software-engineering/actions/workflows/ci.yml) now includes the real Swagger walkthrough and uploads both JaCoCo reports. The final record must identify its run, SHA and passing jobs; local YAML/actionlint validation is not remote execution evidence. Execution of the new commit is still pending in this initial delivery record.
+The [Quality gates workflow](https://github.com/Vidigal-code/ai-driven-software-engineering/actions/workflows/ci.yml) now includes the real Swagger walkthrough and uploads both JaCoCo reports. Run [45914734649](https://github.com/Vidigal-code/ai-driven-software-engineering/actions/runs/45914734649), on commit `04e3899792279189a4e38039bcc5db213ca27f11`, successfully completed all four jobs: backend, frontend, dependencies and integration. Integration passed build/health, smoke, 18 browser contract tests, two real API flows, four Swagger tests and all three image scans. All six Dependabot Updates runs for that SHA also passed. Remote evidence: `artifacts/ci-push1-run.json` and `artifacts/ci-push1-summary.json`. This is an actual GitHub result, distinct from local YAML/actionlint validation.
 
 All five initial Dependabot Updates runs passed. Major-update PRs have their own status: for example, the isolated jest-dom8 PR requires Vitest5 and must not be approved through forced installation. The test-dependency group keeps these updates together without changing the installed stack.
 
