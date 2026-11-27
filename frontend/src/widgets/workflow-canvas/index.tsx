@@ -31,6 +31,7 @@ type StepNode = Node<
 const NODE_COLUMNS = 4;
 const COLUMN_GAP = 250;
 const ROW_GAP = 120;
+const FIT_VIEW_PADDING = '6.52%';
 const ICONS = {
   SDD: FileText,
   TDD: Terminal,
@@ -171,13 +172,12 @@ function Canvas({
       edges={edges}
       nodeTypes={NODE_TYPES}
       fitView
-      fitViewOptions={{ padding: 0.15 }}
+      fitViewOptions={{ padding: FIT_VIEW_PADDING }}
       minZoom={0.2}
       maxZoom={1.8}
       nodesDraggable={false}
       nodesConnectable={false}
       onNodeClick={(_, node) => onSelect(node.id)}
-      colorMode="system"
       aria-label="Fluxo de engenharia com 22 etapas"
     >
       <Background gap={18} size={1} color="var(--border)" />
