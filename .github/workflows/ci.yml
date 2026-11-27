@@ -32,6 +32,26 @@ jobs:
           cache-dependency-path: backend/pom.xml
       - name: Unit, integration, coverage, static analysis and package
         run: chmod +x mvnw && ./mvnw --batch-mode --no-transfer-progress verify
+      - name: Prepare dependency scan evidence
+        run: mkdir -p "$GITHUB_WORKSPACE/artifacts"
+      - name: Dependency, configuration and secret scan
+        uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1
+        with:
+          scan-type: fs
+          version: v0.76.2
+          scan-ref: .
+          scanners: vuln,secret,misconfig
+          severity: HIGH,CRITICAL
+          exit-code: '1'
+          timeout: 15m
+          format: json
+          output: artifacts/trivy-filesystem.json
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: dependency-security-evidence
+          path: artifacts/trivy-filesystem.json
+          if-no-files-found: warn
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
@@ -40,6 +60,7 @@ jobs:
             backend/target/surefire-reports/
             backend/target/failsafe-reports/
             backend/target/site/jacoco/
+            backend/target/site/jacoco-full/
             backend/target/spotbugsXml.xml
             backend/target/library-api.jar
           if-no-files-found: warn
@@ -99,17 +120,6 @@ jobs:
         run: |
           go install github.com/rhysd/actionlint/cmd/actionlint@v1.7.7
           "$(go env GOPATH)/bin/actionlint" .github/workflows/ci.yml
-      - name: Dependency, configuration and secret scan
-        uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1
-        with:
-          scan-type: fs
-          version: v0.76.2
-          scan-ref: .
-          scanners: vuln,secret,misconfig
-          severity: HIGH,CRITICAL
-          exit-code: '1'
-          format: json
-          output: artifacts/trivy-filesystem.json
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
@@ -164,6 +174,12 @@ jobs:
         env:
           E2E_BASE_URL: http://localhost:3000
         run: node --env-file=../.env node_modules/@playwright/test/cli.js test -c playwright.integration.config.ts
+      - name: Swagger examples through the proxy and direct API
+        working-directory: frontend
+        env:
+          E2E_BASE_URL: http://localhost:3000
+          E2E_API_URL: http://localhost:8080
+        run: node --env-file=../.env node_modules/@playwright/test/cli.js test -c playwright.swagger.config.ts
       - name: Backend container vulnerabilities
         uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1
         with:
@@ -207,6 +223,7 @@ jobs:
             frontend/test-results/
             frontend/artifacts/playwright.json
             frontend/artifacts/playwright-integration.json
+            frontend/artifacts/playwright-swagger.json
           if-no-files-found: warn
       - name: Stop isolated services
         if: always()
