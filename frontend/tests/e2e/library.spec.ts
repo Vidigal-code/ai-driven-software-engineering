@@ -24,6 +24,108 @@ const USER = {
   updatedAt: '2026-01-01T00:00:00Z',
 };
 
+test('CA-UX-002: sidebar logout remains reachable in a short viewport', async ({ page }) => {
+  await mockLibrary(page, 'LIBRARIAN');
+  await page.setViewportSize({ width: 1280, height: 600 });
+  await page.goto('/books');
+  const logout = page.getByRole('button', { name: 'Sair', exact: true });
+  await logout.scrollIntoViewIfNeeded();
+  await expect(logout).toBeInViewport();
+  await logout.click();
+  await expect(page).toHaveURL(/\/login$/);
+});
+
+test('CA-UX-001/002: native selects and catalog remain usable in both themes and viewport sizes', async ({ page }) => {
+  await mockLibrary(page, 'ADMIN');
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/books');
+  const availability = page.getByRole('combobox', { name: 'Disponibilidade', exact: true });
+  await expect(page.getByText('1 título', { exact: true })).toBeVisible();
+  await availability.focus();
+  await page.keyboard.press('ArrowDown');
+  await page.keyboard.press('Enter');
+  await expect(availability).toHaveValue('true');
+  await expect(availability).toBeFocused();
+  for (const viewport of [{ name: 'desktop', width: 1440, height: 1000 }, { name: 'mobile', width: 390, height: 844 }]) {
+    await page.setViewportSize({ width: viewport.width, height: viewport.height });
+    for (const theme of ['dark', 'light']) {
+      await page.evaluate(value => { localStorage.setItem('library-theme', value); }, theme);
+      await page.reload();
+      await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
+      await expect(page.getByText('Clean Code', { exact: true })).toBeVisible();
+      expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(viewport.width);
+      for (const control of await page.getByRole('combobox').all()) {
+        await expect(control).toHaveCSS('appearance', 'none');
+        const bounds = await control.boundingBox();
+        expect((bounds?.x ?? 0) + (bounds?.width ?? 0)).toBeLessThanOrEqual(viewport.width);
+      }
+      for (const action of ['Visualizar Clean Code', 'Editar Clean Code', 'Excluir Clean Code']) {
+        const button = page.getByRole('button', { name: action });
+        await button.scrollIntoViewIfNeeded();
+        await expect(button).toBeInViewport();
+      }
+      await page.screenshot({ path: `artifacts/books-${viewport.name}-${theme}.png`, fullPage: true });
+      await page.getByRole('button', { name: 'Novo livro' }).click();
+      await expect(page.getByRole('group', { name: 'Identificação' })).toBeVisible();
+      await expect(page.getByRole('group', { name: 'Publicação' })).toBeVisible();
+      await expect(page.getByRole('group', { name: 'Exemplares' })).toBeAttached();
+      await page.screenshot({ path: `artifacts/book-editor-${viewport.name}-${theme}.png`, fullPage: true });
+      await page.getByRole('button', { name: 'Cancelar', exact: true }).click();
+    }
+  }
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.goto('/users');
+  await expect(page.getByRole('combobox', { name: 'Perfil de Maria Silva' })).toHaveCSS('appearance', 'none');
+  await page.goto('/engineering/workflow');
+  for (const name of ['Selecionar cenário', 'Velocidade', 'Filtrar nível dos logs']) {
+    await expect(page.getByRole('combobox', { name })).toHaveCSS('appearance', 'none');
+  }
+});
+
+test('CA-UX-002: ordering does not apply unfinished search filters', async ({ page }) => {
+  await mockLibrary(page, 'READER');
+  await page.goto('/books');
+  await page.getByLabel('Pesquisar por título').fill('Rascunho não aplicado');
+  const sorted = page.waitForRequest(request => new URL(request.url()).searchParams.get('sort') === 'title,asc');
+  await page.getByLabel('Ordenar livros').selectOption('title,asc');
+  expect(new URL((await sorted).url()).searchParams.has('title')).toBe(false);
+  await expect(page.getByText('Clean Code', { exact: true })).toBeVisible();
+});
+
+test('CA-UX-006: pending mutations prevent closing or duplicate submission', async ({ page }) => {
+  await mockLibrary(page, 'LIBRARIAN');
+  let release: (() => void) | undefined;
+  let submissions = 0;
+  await page.route('**/api/v1/books/b1', async route => {
+    if (['PUT', 'DELETE'].includes(route.request().method())) {
+      submissions += 1;
+      await new Promise<void>(resolve => { release = resolve; });
+    }
+    await route.fallback();
+  });
+  await page.goto('/books');
+  await page.getByRole('button', { name: 'Editar Clean Code' }).click();
+  await page.getByLabel('Título', { exact: true }).fill('Clean Code atualizado');
+  await page.getByRole('button', { name: 'Salvar livro' }).click();
+  await expect(page.getByRole('button', { name: 'Salvando...' })).toBeDisabled();
+  await expect(page.getByRole('button', { name: 'Fechar diálogo' })).toBeDisabled();
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('dialog')).toBeVisible();
+  expect(submissions).toBe(1);
+  release?.();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await page.getByRole('button', { name: 'Excluir Clean Code atualizado' }).click();
+  await page.getByRole('button', { name: 'Confirmar exclusão' }).click();
+  await expect(page.getByRole('button', { name: 'Cancelar', exact: true })).toBeDisabled();
+  await expect(page.getByRole('button', { name: 'Fechar diálogo' })).toBeDisabled();
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('dialog')).toBeVisible();
+  expect(submissions).toBe(2);
+  release?.();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await expect(page.getByText('Nenhum livro encontrado')).toBeVisible();
+});
+
 test('CA-UI-001: registers a reader without sending a privileged role', async ({ page }) => {
   await mockLibrary(page, 'VISITOR');
   await page.goto('/register');

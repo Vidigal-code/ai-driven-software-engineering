@@ -9,6 +9,7 @@ export default defineConfig({
   workers: 1,
   timeout: 90_000,
   retries: 0,
+  preserveOutput: 'never',
   reporter: [
     ['list'],
     ['json', { outputFile: 'artifacts/playwright-integration.json' }],
@@ -16,8 +17,10 @@ export default defineConfig({
   use: {
     ...base.use,
     baseURL: process.env.E2E_BASE_URL ?? 'http://localhost:3000',
+    actionTimeout: 10_000,
+    navigationTimeout: 15_000,
     trace: 'off',
-    screenshot: 'only-on-failure',
+    screenshot: 'off',
     video: 'off',
   },
   webServer: undefined,

@@ -9,8 +9,8 @@ interface BookTableProps {
 }
 export function BookTable({ books, onView, onEdit, onDelete }: BookTableProps) {
   return (
-    <div className="table-scroll">
-      <table>
+    <div className="table-scroll book-table-wrap">
+      <table className="book-table">
         <thead>
           <tr>
             <th>Livro</th>
@@ -18,14 +18,14 @@ export function BookTable({ books, onView, onEdit, onDelete }: BookTableProps) {
             <th>ISBN</th>
             <th>Disponibilidade</th>
             <th>
-              <span className="sr-only">Ações</span>
+              Ações
             </th>
           </tr>
         </thead>
         <tbody>
           {books.map((book) => (
             <tr key={book.id}>
-              <td>
+              <td className="book-identity">
                 <div className="book-cell">
                   <span className="book-cover">
                     <BookOpen size={16} />
@@ -36,13 +36,13 @@ export function BookTable({ books, onView, onEdit, onDelete }: BookTableProps) {
                   </div>
                 </div>
               </td>
-              <td>
+              <td data-label="Categoria">
                 <span className="badge">
                   {book.category || 'Sem categoria'}
                 </span>
               </td>
-              <td className="small muted">{book.isbn}</td>
-              <td>
+              <td className="small muted" data-label="ISBN">{book.isbn}</td>
+              <td data-label="Disponibilidade">
                 <span
                   className={`badge ${book.availableCopies > 0 ? 'badge-green' : 'badge-orange'}`}
                 >
@@ -50,31 +50,34 @@ export function BookTable({ books, onView, onEdit, onDelete }: BookTableProps) {
                   {book.availableCopies}/{book.totalCopies}
                 </span>
               </td>
-              <td>
-                <div className="flex">
+              <td className="book-row-actions">
+                <div className="book-actions">
                   <button
-                    className="icon-button"
+                    className="button book-action"
                     aria-label={`Visualizar ${book.title}`}
                     onClick={() => onView(book)}
                   >
                     <Eye size={16} />
+                    Ver
                   </button>
                   {onEdit && (
                     <button
-                      className="icon-button"
+                      className="button book-action"
                       aria-label={`Editar ${book.title}`}
                       onClick={() => onEdit(book)}
                     >
                       <Pencil size={16} />
+                      Editar
                     </button>
                   )}
                   {onDelete && (
                     <button
-                      className="icon-button"
+                      className="button book-action book-delete"
                       aria-label={`Excluir ${book.title}`}
                       onClick={() => onDelete(book)}
                     >
                       <Trash2 size={16} />
+                      Excluir
                     </button>
                   )}
                 </div>

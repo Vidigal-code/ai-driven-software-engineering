@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Check, Copy, Download, Trash2 } from 'lucide-react';
+import { Select } from '../../shared/ui';
 import type { LogLevel, WorkflowLog } from '../../entities/workflow';
 
 function formatTime(milliseconds: number): string {
@@ -77,8 +78,8 @@ export function ExecutionTerminal({
             />
             <span>Auto-scroll</span>
           </label>
-          <select
-            className="speed-select"
+          <Select
+
             aria-label="Filtrar nível dos logs"
             value={level}
             onChange={(event) =>
@@ -90,7 +91,7 @@ export function ExecutionTerminal({
             <option value="SUCCESS">Sucesso</option>
             <option value="WARN">Avisos</option>
             <option value="ERROR">Erros</option>
-          </select>
+          </Select>
           <button
             className="icon-button"
             onClick={() => void copyLogs()}
