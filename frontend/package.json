@@ -19,7 +19,7 @@
     "test:e2e:swagger": "playwright test -c playwright.swagger.config.ts"
   },
   "dependencies": {
-    "@hookform/resolvers": "5.9.2",
+    "@hookform/resolvers": "7.0.8",
     "@tanstack/react-query": "5.108.4",
     "@xyflow/react": "12.12.1",
     "lucide-react": "1.81.0",
