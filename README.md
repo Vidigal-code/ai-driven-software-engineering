@@ -9,7 +9,9 @@
 Sistema de gerenciamento de acervo e **Engineering Workflow Studio**, demonstração interativa de Spec-to-Production Engineering: SDD, TDD, agentes especializados, skills e Quality Gates. O Studio identifica sua execução simulada; cadastro, autenticação, usuários e dashboard consomem uma API real.
 
 ## Execução com Docker
-Requisitos: Docker Engine/Compose e Node.js22.12+ para gerar configuração local. Na raiz:
+Requisitos: Docker Engine/Compose e Node.js22.12+ para gerar configuração local.
+
+Esta proposta utiliza PostgreSQL 19. Antes de atualizar um ambiente com dados do PostgreSQL 17, siga o [guia de backup e migração](docs/postgres-upgrade.md). O comando abaixo inicializa um volume novo; não converte um volume 17 existente, que será recusado explicitamente. Na raiz:
 
 ```sh
 node scripts/init-env.mjs --admin-email admin@example.test
@@ -94,7 +96,7 @@ Consulte [resultados atuais](docs/validation-updates.md) para testes, cobertura 
 Erros usam Problem Details. Mutações de autenticação exigem `X-Requested-With: XMLHttpRequest`; rotas protegidas usam Bearer. Importe os dois JSONs de postman/ e configure valores locais; nenhum segredo real faz parte da coleção.
 
 ## Stack e decisões
-Java21, Spring Boot4.2, Spring Security/Data JPA/Hibernate, PostgreSQL17, Flyway, Springdoc3.2, JUnit Jupiter6, Mockito, MockMvc, Testcontainers e JaCoCo. React19, TypeScript5.9 strict, Vite7, Tailwind4, React Flow12, React Router7, TanStack Query5, RHF7, Zod4, Vitest4 e Playwright. Manifests/lockfile contêm versões exatas.
+Java21, Spring Boot4.2, Spring Security/Data JPA/Hibernate, PostgreSQL19, Flyway, Springdoc3.2, JUnit Jupiter6, Mockito, MockMvc, Testcontainers e JaCoCo. React19, TypeScript5.9 strict, Vite7, Tailwind4, React Flow12, React Router7, TanStack Query5, RHF7, Zod4, Vitest4 e Playwright. Manifests/lockfile contêm versões exatas.
 
 **Atualização em relação ao escopo original:** Spring Framework7 exige JUnit6. A implementação usa o BOM compatível do Boot4.2 em vez de forçar JUnit5 sem suporte. [Arquitetura](docs/architecture.md) registra essa decisão e as fontes oficiais.
 
@@ -129,7 +131,9 @@ A demonstração não chama modelos nem executa código arbitrário. Não inclui
 A catalog-management system and **Engineering Workflow Studio**, an interactive demonstration of Spec-to-Production Engineering: SDD, TDD, specialized agents, skills and Quality Gates. The Studio labels simulated execution; catalog, authentication, users and dashboard consume a real API.
 
 ## Run with Docker
-Requirements: Docker Engine/Compose and Node.js22.12+ to generate local configuration. From the root:
+Requirements: Docker Engine/Compose and Node.js22.12+ to generate local configuration.
+
+This proposal uses PostgreSQL 19. Before upgrading an environment containing PostgreSQL 17 data, follow the [backup and migration guide](docs/postgres-upgrade.md). The command below initializes a new volume; it does not convert an existing PostgreSQL 17 volume, which will be explicitly rejected. From the root:
 
 ```sh
 node scripts/init-env.mjs --admin-email admin@example.test
@@ -214,7 +218,7 @@ Read [current results](docs/validation-updates.md) for tests, coverage and secur
 Errors use Problem Details. Authentication mutations require `X-Requested-With: XMLHttpRequest`; protected routes use Bearer. Import both JSON files in postman/ and configure local values; the collection contains no real secrets.
 
 ## Stack and decisions
-Java21, Spring Boot4.2, Spring Security/Data JPA/Hibernate, PostgreSQL17, Flyway, Springdoc3.2, JUnit Jupiter6, Mockito, MockMvc, Testcontainers and JaCoCo. React19, strict TypeScript5.9, Vite7, Tailwind4, React Flow12, React Router7, TanStack Query5, RHF7, Zod4, Vitest4 and Playwright. Manifests/lockfile record exact versions.
+Java21, Spring Boot4.2, Spring Security/Data JPA/Hibernate, PostgreSQL19, Flyway, Springdoc3.2, JUnit Jupiter6, Mockito, MockMvc, Testcontainers and JaCoCo. React19, strict TypeScript5.9, Vite7, Tailwind4, React Flow12, React Router7, TanStack Query5, RHF7, Zod4, Vitest4 and Playwright. Manifests/lockfile record exact versions.
 
 **Change from the original scope:** Spring Framework7 requires JUnit6. The implementation uses Boot4.2's compatible BOM instead of forcing unsupported JUnit5. [Architecture](docs/architecture.md) records the decision and official sources.
 
