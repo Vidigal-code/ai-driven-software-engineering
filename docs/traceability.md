@@ -28,6 +28,7 @@ Cada linha liga requisito → critério de aceitação → tarefa → teste → 
 | RF-SWAG-001..005 | CA-SWAG-001..005; SWAG-T01..05 | OpenApiExamplesIT, swagger.spec.ts | OpenApiConfig, DTOs/controllers, exemplos, origens explícitas | Contrato executado em PostgreSQL e Swagger no navegador; ver validação |
 | RF-UX-001..005 | CA-UX-001..006; UX-T01..05 | Select.test.tsx, BookEditor.test.tsx, library.spec.ts, integration.spec.ts | Select compartilhado, página/editor/tabela de livros | Componentes, CRUD real, teclado e revisão visual; ver validação |
 | RF-CI-001..007 | acceptance 008; CI-T01..06 | actionlint, validate-project.py, execuções GitHub Actions | ci.yml, agrupamento Dependabot | Maven antes do scan, gates preservados e resultado remoto por commit |
+| RF-DEP-001..006 | acceptance 009; DEP-T01..06 | npm ci, lint, typecheck, Vitest, Playwright e checks dos PRs | Manifests/lockfile e compatibilidade das branches de dependências | [Relatório por PR](dependency-pr-validation.md), SHA e run; sem remover testes |
 
 ## Localização dos resultados
 
@@ -74,6 +75,7 @@ Each row links requirement → acceptance criterion → task → test → implem
 | RF-SWAG-001..005 | CA-SWAG-001..005; SWAG-T01..05 | OpenApiExamplesIT, swagger.spec.ts | OpenApiConfig, DTOs/controllers, examples, explicit origins | Contract executed against PostgreSQL and browser Swagger; see validation |
 | RF-UX-001..005 | CA-UX-001..006; UX-T01..05 | Select.test.tsx, BookEditor.test.tsx, library.spec.ts, integration.spec.ts | Shared Select, book page/editor/table | Components, real CRUD, keyboard and visual review; see validation |
 | RF-CI-001..007 | acceptance 008; CI-T01..06 | actionlint, validate-project.py, GitHub Actions runs | ci.yml, Dependabot grouping | Maven before scanning, preserved gates and remote result per commit |
+| RF-DEP-001..006 | acceptance 009; DEP-T01..06 | npm ci, lint, typecheck, Vitest, Playwright and PR checks | Manifests/lockfile and dependency branch compatibility | [Per-PR report](dependency-pr-validation.md), SHA and run; no tests removed |
 
 ## Result locations
 
