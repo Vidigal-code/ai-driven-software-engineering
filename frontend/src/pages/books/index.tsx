@@ -27,6 +27,7 @@ import {
   LoadingState,
   Modal,
   PageHeading,
+  Select,
   Toast,
 } from '../../shared/ui';
 
@@ -39,6 +40,10 @@ const INITIAL_FILTERS: BookFilters = {
   page: 0,
   sort: 'createdAt,desc',
 };
+
+function titleCount(total: number): string {
+  return `${total} ${total === 1 ? 'título' : 'títulos'}`;
+}
 
 export default function BooksPage() {
   const { user } = useSession();
@@ -109,9 +114,10 @@ export default function BooksPage() {
           </button>
         )}
       </PageHeading>
-      <form onSubmit={applyFilters}>
+      <form className="panel book-filters" aria-label="Filtros do acervo" onSubmit={applyFilters}>
+        <div className="filter-heading"><Filter size={16} /><h2>Encontre um livro</h2><span>Combine os filtros e clique em Filtrar.</span></div>
         <div className="toolbar">
-          <div className="search-field">
+          <label className="filter-title">Título<div className="search-field">
             <Search size={17} />
             <input
               className="input"
@@ -122,10 +128,9 @@ export default function BooksPage() {
                 setDraft({ ...draft, title: event.target.value })
               }
             />
-          </div>
-          <select
+          </div></label>
+          <label className="filter-availability">Disponibilidade<Select
             className="select"
-            style={{ width: 'auto' }}
             aria-label="Disponibilidade"
             value={draft.available}
             onChange={(event) =>
@@ -135,34 +140,19 @@ export default function BooksPage() {
             <option value="">Todas as disponibilidades</option>
             <option value="true">Disponíveis</option>
             <option value="false">Indisponíveis</option>
-          </select>
-          <select
-            className="select"
-            style={{ width: 'auto' }}
-            aria-label="Ordenar livros"
-            value={draft.sort}
-            onChange={(event) => {
-              const next = { ...draft, sort: event.target.value, page: 0 };
-              setDraft(next);
-              setFilters(next);
-            }}
-          >
-            <option value="createdAt,desc">Mais recentes</option>
-            <option value="title,asc">Título A–Z</option>
-            <option value="title,desc">Título Z–A</option>
-            <option value="author,asc">Autor A–Z</option>
-            <option value="publicationYear,desc">Ano decrescente</option>
-          </select>
-          <button className="button" type="submit">
+          </Select></label>
+
+          <button className="button button-primary" type="submit">
             <Filter size={15} />
             Filtrar
           </button>
         </div>
-        <details className="mb-5">
+        <details className="advanced-filters">
           <summary className="small muted cursor-pointer">
             Mais filtros: autor, ISBN e categoria
           </summary>
-          <div className="form-grid mt-3">
+          <div className="advanced-filter-grid">
+            <label><span>Autor</span>
             <input
               className="input"
               aria-label="Filtrar autor"
@@ -172,6 +162,8 @@ export default function BooksPage() {
                 setDraft({ ...draft, author: event.target.value })
               }
             />
+            </label>
+            <label><span>ISBN</span>
             <input
               className="input"
               aria-label="Filtrar ISBN"
@@ -181,6 +173,8 @@ export default function BooksPage() {
                 setDraft({ ...draft, isbn: event.target.value })
               }
             />
+            </label>
+            <label><span>Categoria</span>
             <input
               className="input"
               aria-label="Filtrar categoria"
@@ -190,6 +184,7 @@ export default function BooksPage() {
                 setDraft({ ...draft, category: event.target.value })
               }
             />
+            </label>
             <button
               className="button"
               type="button"
@@ -204,11 +199,23 @@ export default function BooksPage() {
         </details>
       </form>
       <section className="panel">
-        <div className="panel-header">
-          <h2>Acervo da biblioteca</h2>
+        <div className="panel-header book-list-heading">
+          <div className="book-list-title"><h2>Acervo da biblioteca</h2>
           <span className="badge">
-            {books.data?.totalElements ?? '—'} títulos
-          </span>
+            {books.data ? titleCount(books.data.totalElements) : 'Carregando'}
+          </span></div>
+          <label className="book-ordering">Ordenar por
+            <Select aria-label="Ordenar livros" value={filters.sort} onChange={event => {
+              setDraft({ ...draft, sort: event.target.value });
+              setFilters({ ...filters, sort: event.target.value, page: 0 });
+            }}>
+              <option value="createdAt,desc">Mais recentes</option>
+              <option value="title,asc">Título A–Z</option>
+              <option value="title,desc">Título Z–A</option>
+              <option value="author,asc">Autor A–Z</option>
+              <option value="publicationYear,desc">Ano decrescente</option>
+            </Select>
+          </label>
         </div>
         {books.isPending && <LoadingState />}
         {books.error && (
@@ -222,7 +229,7 @@ export default function BooksPage() {
         {books.data?.content.length === 0 && (
           <EmptyState
             title="Nenhum livro encontrado"
-            description="Tente outros filtros ou cadastre o primeiro livro do acervo."
+            description={manage ? "Tente outros filtros ou cadastre o primeiro livro do acervo." : "Tente outros filtros para encontrar um título."}
           />
         )}
         {books.data && books.data.content.length > 0 && (
@@ -250,7 +257,7 @@ export default function BooksPage() {
         {books.data && (
           <div className="pagination">
             <span>
-              {books.data.totalElements} títulos · página{' '}
+              {titleCount(books.data.totalElements)} · página{' '}
               {books.data.number + 1} de {Math.max(1, books.data.totalPages)}
             </span>
             <div className="pagination-actions">
@@ -285,7 +292,7 @@ export default function BooksPage() {
       {editor && (
         <Modal
           title={editor.book ? 'Editar livro' : 'Cadastrar livro'}
-          onClose={() => setEditor(null)}
+          onClose={save.isPending ? undefined : () => setEditor(null)}
         >
           <BookEditor
             book={editor.book}
@@ -299,7 +306,7 @@ export default function BooksPage() {
         <BookDetails id={detailId} onClose={() => setDetailId(null)} />
       )}
       {deleting && (
-        <Modal title="Excluir livro" onClose={() => setDeleting(null)}>
+        <Modal title="Excluir livro" onClose={remove.isPending ? undefined : () => setDeleting(null)}>
           <div className="modal-body">
             <p>
               Excluir <strong>{deleting.title}</strong> do acervo?
@@ -310,7 +317,7 @@ export default function BooksPage() {
             {remove.error && <ErrorBanner error={remove.error} />}
           </div>
           <div className="modal-footer">
-            <button className="button" onClick={() => setDeleting(null)}>
+            <button className="button" disabled={remove.isPending} onClick={() => setDeleting(null)}>
               Cancelar
             </button>
             <button
