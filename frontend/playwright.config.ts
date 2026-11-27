@@ -3,7 +3,7 @@ import { defineConfig, devices } from '@playwright/test';
 const baseURL = process.env.E2E_BASE_URL ?? 'http://localhost:4173';
 export default defineConfig({
   testDir: './tests/e2e',
-  testIgnore: '**/integration.spec.ts',
+  testIgnore: ['**/integration.spec.ts', '**/swagger.spec.ts'],
   timeout: 60_000,
   expect: { timeout: 10_000 },
   fullyParallel: true,

@@ -1,5 +1,6 @@
 import { AlertCircle, BookOpen, CheckCircle2, X } from 'lucide-react';
-import { useEffect, useRef, type ReactNode } from 'react';
+import { cloneElement, useEffect, useId, useRef, type ReactElement, type ReactNode } from 'react';
+export { Select } from './Select';
 
 export function ErrorBanner({
   error,
@@ -62,7 +63,7 @@ export function Modal({
 }: {
   title: string;
   children: ReactNode;
-  onClose: () => void;
+  onClose?: () => void;
 }) {
   const ref = useRef<HTMLDialogElement>(null);
   useEffect(() => {
@@ -71,12 +72,16 @@ export function Modal({
     return () => dialog?.close();
   }, []);
   return (
-    <dialog ref={ref} className="modal" aria-label={title} onCancel={onClose}>
+    <dialog ref={ref} className="modal" aria-label={title} onCancel={event => {
+      event.preventDefault();
+      onClose?.();
+    }}>
       <div className="panel-header">
         <h2>{title}</h2>
         <button
           className="icon-button"
           onClick={onClose}
+          disabled={!onClose}
           aria-label="Fechar diálogo"
         >
           <X size={18} />
@@ -140,16 +145,20 @@ export function Field({
 }: {
   label: string;
   error?: string;
-  children: ReactNode;
+  children: ReactElement<{ 'aria-invalid'?: boolean; 'aria-describedby'?: string }>;
 }) {
+  const errorId = useId();
   return (
     <div className="field">
       <label>
         {label}
-        {children}
+        {cloneElement(children, {
+          'aria-invalid': Boolean(error),
+          'aria-describedby': error ? errorId : children.props['aria-describedby'],
+        })}
       </label>
       {error && (
-        <span className="field-error" role="alert">
+        <span className="field-error" role="alert" id={errorId}>
           {error}
         </span>
       )}
