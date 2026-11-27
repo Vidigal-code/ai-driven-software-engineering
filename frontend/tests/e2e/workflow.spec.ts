@@ -169,3 +169,29 @@ test('CA-WF-005b/006: controls terminal scroll, clipboard and fullscreen', async
   await page.getByRole('button', { name: 'Tela cheia' }).click();
   await expect.poll(() => page.evaluate(() => document.fullscreenElement === null)).toBe(true);
 });
+
+test('CA-DEP-002: fitted workflow preserves selection outlines and application themes', async ({ page }) => {
+  await page.setViewportSize({ width: 1600, height: 1100 });
+  await page.emulateMedia({ colorScheme: 'light', reducedMotion: 'reduce' });
+  await page.goto('/engineering/workflow');
+  await expect(page.locator('.react-flow__node')).toHaveCount(22);
+  await page.locator('[data-id="request"]').click();
+  await expect.poll(() => page.evaluate(() => {
+    const canvas = document.querySelector<HTMLElement>('.react-flow');
+    const selected = document.querySelector<HTMLElement>('.react-flow__node.selected .workflow-node');
+    if (!canvas || !selected) throw new Error('Workflow selection must be rendered.');
+    const viewport = canvas.getBoundingClientRect();
+    const node = selected.getBoundingClientRect();
+    const style = getComputedStyle(selected);
+    const outline = (Number.parseFloat(style.outlineWidth) + Number.parseFloat(style.outlineOffset))
+      * node.width / selected.offsetWidth;
+    return Math.min(node.top - outline - viewport.top, viewport.bottom - node.bottom - outline,
+      node.left - outline - viewport.left, viewport.right - node.right - outline);
+  })).toBeGreaterThanOrEqual(0);
+  const zoomControl = page.locator('.react-flow__controls-zoomin');
+  await expect(zoomControl).toHaveCSS('background-color', 'rgb(23, 23, 31)');
+  await page.getByRole('button', { name: 'Tema claro' }).click();
+  await expect(zoomControl).toHaveCSS('background-color', 'rgb(255, 255, 255)');
+  await page.getByRole('button', { name: 'Tema escuro' }).click();
+  await expect(zoomControl).toHaveCSS('background-color', 'rgb(23, 23, 31)');
+});

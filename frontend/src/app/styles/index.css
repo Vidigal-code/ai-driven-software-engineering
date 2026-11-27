@@ -1,5 +1,7 @@
+@layer theme, base, xyflow, components, utilities;
+
 @import 'tailwindcss';
-@import '@xyflow/react/dist/style.css';
+@import '@xyflow/react/style.css';
 
 @theme {
   --font-sans: 'Segoe UI', Inter, system-ui, sans-serif;
