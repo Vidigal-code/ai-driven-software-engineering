@@ -9,14 +9,12 @@ import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.net.URI;
-import java.util.Set;
 import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/books")
 @Tag(name = "Books")
 public class BookController {
-    private static final Set<String> SORT_FIELDS = Set.of("title", "author", "isbn", "category", "publicationYear", "totalCopies", "availableCopies", "createdAt", "updatedAt");
     private final BookService books;
     private final Pagination pagination;
 
@@ -34,7 +32,7 @@ public class BookController {
     public PageResponse<BookResponse> search(@Valid @ModelAttribute @ParameterObject BookFilter filter,
             @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size,
             @RequestParam(defaultValue = "createdAt,desc") String sort) {
-        return books.search(filter, pagination.parse(new PageInput(page, size, sort), SORT_FIELDS));
+        return books.search(filter, pagination.parse(new PageInput(page, size, sort), SortFields.BOOKS));
     }
 
     @GetMapping("/{id}") @Operation(summary = "Consultar livro")
