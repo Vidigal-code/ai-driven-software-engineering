@@ -25,6 +25,9 @@ Cada linha liga requisito → critério de aceitação → tarefa → teste → 
 | RF-WF-004/005/006/007 | CA-WF-004/005/006/007; T-WF-004/005/006/007/QA | workflow.spec.ts, ExecutionTerminal.test.tsx, EvidencePanel.test.tsx e revisão visual | Canvas, detalhes, terminal e evidências | Artefatos, falhas/retorno, logs e transparência |
 | INF-001..009 | acceptance 005; INF-T01..06 | smoke.mjs, validate-project.py, Playwright, scanners | Compose, Dockerfiles, Nginx, CI, Postman | Health, HTTP, schemas, builds e vulnerabilidades |
 | INF-010 | INF-CA10/11/12; INF-T07 | collect-evidence.test.mjs | collect-evidence.mjs, EvidencePanel | Relatórios ausentes, falhas e cobertura; manifesto real |
+| RF-SWAG-001..005 | CA-SWAG-001..005; SWAG-T01..05 | OpenApiExamplesIT, swagger.spec.ts | OpenApiConfig, DTOs/controllers, exemplos, origens explícitas | Contrato executado em PostgreSQL e Swagger no navegador; ver validação |
+| RF-UX-001..005 | CA-UX-001..006; UX-T01..05 | Select.test.tsx, BookEditor.test.tsx, library.spec.ts, integration.spec.ts | Select compartilhado, página/editor/tabela de livros | Componentes, CRUD real, teclado e revisão visual; ver validação |
+| RF-CI-001..007 | acceptance 008; CI-T01..06 | actionlint, validate-project.py, execuções GitHub Actions | ci.yml, agrupamento Dependabot | Maven antes do scan, gates preservados e resultado remoto por commit |
 
 ## Localização dos resultados
 
@@ -68,6 +71,9 @@ Each row links requirement → acceptance criterion → task → test → implem
 | RF-WF-004/005/006/007 | CA-WF-004/005/006/007; T-WF-004/005/006/007/QA | workflow.spec.ts, ExecutionTerminal.test.tsx, EvidencePanel.test.tsx and visual review | Canvas, details, terminal and evidence | Artifacts, failure/return, logs and transparency |
 | INF-001..009 | acceptance 005; INF-T01..06 | smoke.mjs, validate-project.py, Playwright, scanners | Compose, Dockerfiles, Nginx, CI, Postman | Health, HTTP, schemas, builds and vulnerabilities |
 | INF-010 | INF-CA10/11/12; INF-T07 | collect-evidence.test.mjs | collect-evidence.mjs, EvidencePanel | Missing reports, failures and coverage; real manifest |
+| RF-SWAG-001..005 | CA-SWAG-001..005; SWAG-T01..05 | OpenApiExamplesIT, swagger.spec.ts | OpenApiConfig, DTOs/controllers, examples, explicit origins | Contract executed against PostgreSQL and browser Swagger; see validation |
+| RF-UX-001..005 | CA-UX-001..006; UX-T01..05 | Select.test.tsx, BookEditor.test.tsx, library.spec.ts, integration.spec.ts | Shared Select, book page/editor/table | Components, real CRUD, keyboard and visual review; see validation |
+| RF-CI-001..007 | acceptance 008; CI-T01..06 | actionlint, validate-project.py, GitHub Actions runs | ci.yml, Dependabot grouping | Maven before scanning, preserved gates and remote result per commit |
 
 ## Result locations
 
