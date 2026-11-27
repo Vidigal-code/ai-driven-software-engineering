@@ -45,6 +45,12 @@ springdoc:
   swagger-ui:
     enabled: ${OPENAPI_ENABLED:true}
     persist-authorization: false
+    try-it-out-enabled: true
+    display-operation-id: true
+    filter: true
+    display-request-duration: true
+    operations-sorter: method
+    tags-sorter: alpha
 library:
   demo-data:
     enabled: ${DEMO_DATA_ENABLED:false}
@@ -55,7 +61,7 @@ library:
     access-token-ttl: ${ACCESS_TOKEN_TTL:PT15M}
     refresh-token-ttl: ${REFRESH_TOKEN_TTL:P7D}
     cookie-secure: ${COOKIE_SECURE:false}
-    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000}
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:8080}
   pagination:
     max-size: ${MAX_PAGE_SIZE:100}
   dashboard:

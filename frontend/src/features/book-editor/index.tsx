@@ -1,6 +1,8 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Save } from 'lucide-react';
+import { useEffect } from 'react';
+import { ApiError } from '../../shared/api/client';
 import {
   bookInputSchema,
   type Book,
@@ -30,11 +32,24 @@ export function BookEditor({ book, onSave, onCancel, error }: BookEditorProps) {
     },
   });
   const errors = form.formState.errors;
+  const { setError } = form;
+  useEffect(() => {
+    if (!(error instanceof ApiError)) return;
+    for (const [field, message] of Object.entries(error.errors ?? {})) {
+      if (Object.hasOwn(bookInputSchema.shape, field)) {
+        setError(field as keyof BookInput, { type: 'server', message });
+      }
+    }
+  }, [error, setError]);
   return (
     <form noValidate onSubmit={form.handleSubmit(onSave)}>
-      <div className="modal-body">
+      <div className="modal-body book-editor-body">
         {error ? <ErrorBanner error={error} /> : null}
-        <div className="form-grid">
+        <p className="small muted">Título, autor, ISBN, ano e quantidades são obrigatórios.</p>
+        <fieldset className="book-form-section" disabled={form.formState.isSubmitting}>
+          <legend>Identificação</legend>
+          <div className="form-grid">
+          <div className="span-full">
           <Field label="Título" error={errors.title?.message}>
             <input
               className="input mt-2"
@@ -42,6 +57,7 @@ export function BookEditor({ book, onSave, onCancel, error }: BookEditorProps) {
               {...form.register('title')}
             />
           </Field>
+          </div>
           <Field label="Autor" error={errors.author?.message}>
             <input className="input mt-2" {...form.register('author')} />
           </Field>
@@ -52,9 +68,17 @@ export function BookEditor({ book, onSave, onCancel, error }: BookEditorProps) {
               {...form.register('isbn')}
             />
           </Field>
-          <Field label="Editora" error={errors.publisher?.message}>
-            <input className="input mt-2" {...form.register('publisher')} />
+          <Field label="Categoria" error={errors.category?.message}>
+            <input className="input mt-2" placeholder="Ex.: Literatura, Tecnologia" {...form.register('category')} />
           </Field>
+          </div>
+        </fieldset>
+        <fieldset className="book-form-section" disabled={form.formState.isSubmitting}>
+          <legend>Publicação</legend>
+          <div className="form-grid">
+            <Field label="Editora" error={errors.publisher?.message}>
+              <input className="input mt-2" {...form.register('publisher')} />
+            </Field>
           <Field
             label="Ano de publicação"
             error={errors.publicationYear?.message}
@@ -62,12 +86,22 @@ export function BookEditor({ book, onSave, onCancel, error }: BookEditorProps) {
             <input
               className="input mt-2"
               type="number"
+              min={1}
+              max={new Date().getFullYear()}
               {...form.register('publicationYear', { valueAsNumber: true })}
             />
           </Field>
-          <Field label="Categoria" error={errors.category?.message}>
-            <input className="input mt-2" {...form.register('category')} />
-          </Field>
+          <div className="span-full">
+            <Field label="Descrição" error={errors.description?.message}>
+              <textarea className="textarea mt-2" rows={3} placeholder="Uma breve descrição do livro (opcional)" {...form.register('description')} />
+            </Field>
+          </div>
+          </div>
+        </fieldset>
+        <fieldset className="book-form-section" disabled={form.formState.isSubmitting}>
+          <legend>Exemplares</legend>
+          <p className="small muted">Os disponíveis não podem ultrapassar o total do acervo.</p>
+          <div className="form-grid">
           <Field
             label="Total de exemplares"
             error={errors.totalCopies?.message}
@@ -75,6 +109,7 @@ export function BookEditor({ book, onSave, onCancel, error }: BookEditorProps) {
             <input
               className="input mt-2"
               type="number"
+              min={0}
               {...form.register('totalCopies', { valueAsNumber: true })}
             />
           </Field>
@@ -85,22 +120,15 @@ export function BookEditor({ book, onSave, onCancel, error }: BookEditorProps) {
             <input
               className="input mt-2"
               type="number"
+              min={0}
               {...form.register('availableCopies', { valueAsNumber: true })}
             />
           </Field>
-          <div className="span-full">
-            <Field label="Descrição" error={errors.description?.message}>
-              <textarea
-                className="textarea mt-2"
-                rows={3}
-                {...form.register('description')}
-              />
-            </Field>
           </div>
-        </div>
+        </fieldset>
       </div>
       <div className="modal-footer">
-        <button className="button" type="button" onClick={onCancel}>
+        <button className="button" type="button" onClick={onCancel} disabled={form.formState.isSubmitting}>
           Cancelar
         </button>
         <button
