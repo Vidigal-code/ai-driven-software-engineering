@@ -1,4 +1,4 @@
-FROM eclipse-temurin:21-jdk-alpine AS build
+FROM eclipse-temurin:25-jdk-alpine AS build
 WORKDIR /workspace
 COPY .mvn .mvn
 COPY mvnw pom.xml ./
@@ -6,7 +6,7 @@ RUN chmod +x mvnw && ./mvnw -B dependency:go-offline
 COPY src src
 RUN ./mvnw -B -DskipTests package
 
-FROM eclipse-temurin:21-jre-alpine AS runtime
+FROM eclipse-temurin:25-jre-alpine AS runtime
 RUN addgroup -S -g 10001 library && adduser -S -u 10001 -G library library
 WORKDIR /app
 COPY --from=build --chown=10001:10001 /workspace/target/library-api.jar ./library-api.jar
