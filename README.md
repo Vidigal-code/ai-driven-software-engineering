@@ -75,7 +75,7 @@ O painel separa o snapshot de relatórios da consulta real a `/actuator/health`,
 
 Dados opcionais de livros exigem `SPRING_PROFILES_ACTIVE=demo` e `DEMO_DATA_ENABLED=true`; ambas as opções ficam desativadas no ambiente gerado. Isso não cria credenciais administrativas fixas.
 
-Consulte [resultados reais](docs/validation.md) para testes, cobertura e revisão de segurança. O Sonar está sem issues abertas após revisão fundamentada de um falso positivo; o pipeline configurado não comprova uma execução no GitHub.
+Consulte [resultados atuais](docs/validation-updates.md) para testes, cobertura e revisão de segurança. O Sonar está sem issues abertas após revisão fundamentada de um falso positivo; o pipeline configurado não comprova uma execução no GitHub.
 
 ## Funcionalidades e contratos
 - Login, registro READER, renovação/rotação/revogação de sessão e logout.
@@ -102,7 +102,7 @@ Java21, Spring Boot4.2, Spring Security/Data JPA/Hibernate, PostgreSQL17, Flyway
 ```text
 .specify/        Constituição e templates
 .ai/            Agentes, skills e orquestração
-specs/001..005/  Especificações, planos, tarefas e aceitação
+specs/001..008/  Especificações, planos, tarefas e aceitação
 backend/        API Java, migrations e testes
 frontend/       SPA FSD, Studio e testes
 postman/        Coleção e ambiente importáveis
@@ -113,7 +113,7 @@ compose.yaml    Serviços frontend/backend/postgres
 ```
 
 ## Documentação e demonstração
-[Arquitetura](docs/architecture.md) · [Fluxo](docs/development-workflow.md) · [Segurança](docs/security.md) · [Testes](docs/testing.md) · [Rastreabilidade](docs/traceability.md) · [Apresentação de5/15 minutos](docs/presentation-guide.md) · [Validação e limitações](docs/validation.md).
+[Arquitetura](docs/architecture.md) · [Fluxo](docs/development-workflow.md) · [Segurança](docs/security.md) · [Testes](docs/testing.md) · [Guia Swagger](docs/swagger-guide.md) · [Rastreabilidade](docs/traceability.md) · [Apresentação de5/15 minutos](docs/presentation-guide.md) · [Validação e limitações](docs/validation-updates.md).
 
 A demonstração não chama modelos nem executa código arbitrário. Não inclui empréstimos, multas, pagamentos ou reservas. Produção exige HTTPS, gestão/rotação de segredos, backups e avaliação das limitações operacionais documentadas.
 
@@ -195,7 +195,7 @@ The panel separates report snapshots from the real `/actuator/health` request, r
 
 Optional book data requires `SPRING_PROFILES_ACTIVE=demo` and `DEMO_DATA_ENABLED=true`; both are disabled in generated configuration. This does not create fixed administrative credentials.
 
-Read [real results](docs/validation.md) for tests, coverage and security review. Sonar has no open issues after a documented false-positive review; a configured pipeline does not prove a GitHub execution.
+Read [current results](docs/validation-updates.md) for tests, coverage and security review. Sonar has no open issues after a documented false-positive review; a configured pipeline does not prove a GitHub execution.
 
 ## Features and contracts
 - Login, READER registration, session renewal/rotation/revocation and logout.
@@ -222,7 +222,7 @@ Java21, Spring Boot4.2, Spring Security/Data JPA/Hibernate, PostgreSQL17, Flyway
 ```text
 .specify/        Constitution and templates
 .ai/            Agents, skills and orchestration
-specs/001..005/  Specifications, plans, tasks and acceptance
+specs/001..008/  Specifications, plans, tasks and acceptance
 backend/        Java API, migrations and tests
 frontend/       FSD SPA, Studio and tests
 postman/        Importable collection and environment
@@ -233,7 +233,7 @@ compose.yaml    Frontend/backend/postgres services
 ```
 
 ## Documentation and demonstration
-[Architecture](docs/architecture.md) · [Workflow](docs/development-workflow.md) · [Security](docs/security.md) · [Testing](docs/testing.md) · [Traceability](docs/traceability.md) · [5/15-minute presentation](docs/presentation-guide.md) · [Validation and limits](docs/validation.md).
+[Architecture](docs/architecture.md) · [Workflow](docs/development-workflow.md) · [Security](docs/security.md) · [Testing](docs/testing.md) · [Swagger guide](docs/swagger-guide.md) · [Traceability](docs/traceability.md) · [5/15-minute presentation](docs/presentation-guide.md) · [Validation and limits](docs/validation-updates.md).
 
 The demonstration does not call models or execute arbitrary code. Loans, fines, payments and reservations are outside scope. Production requires HTTPS, secret management/rotation, backups and evaluation of documented operational limits.
 
