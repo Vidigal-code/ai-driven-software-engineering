@@ -32,7 +32,7 @@ const entries = {
   JWT_AUDIENCE: 'library-web',
   ACCESS_TOKEN_TTL: 'PT15M',
   REFRESH_TOKEN_TTL: 'P7D',
-  CORS_ALLOWED_ORIGINS: 'http://localhost:3000',
+  CORS_ALLOWED_ORIGINS: 'http://localhost:3000,http://localhost:8080',
   COOKIE_SECURE: 'false',
   OPENAPI_ENABLED: 'true',
   BOOTSTRAP_ADMIN_ENABLED: String(Boolean(email)),

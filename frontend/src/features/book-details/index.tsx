@@ -41,8 +41,11 @@ export function BookDetails({
               </dd>
               <dt>Atualização</dt>
               <dd>{new Date(book.updatedAt).toLocaleDateString('pt-BR')}</dd>
+              <dt>Cadastro</dt>
+              <dd>{new Date(book.createdAt).toLocaleDateString('pt-BR')}</dd>
             </dl>
-            <p className="small">
+            <h2 className="small">Descrição</h2>
+            <p className="small book-description">
               {book.description || 'Nenhuma descrição informada.'}
             </p>
           </>
