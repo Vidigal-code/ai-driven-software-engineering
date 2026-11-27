@@ -28,7 +28,7 @@ import { WorkflowCanvas } from '../../widgets/workflow-canvas';
 import { WorkflowDetails } from '../../widgets/workflow-details';
 import { ExecutionTerminal } from '../../widgets/execution-terminal';
 import { EvidencePanel } from '../../widgets/evidence-panel';
-import { PageHeading } from '../../shared/ui';
+import { PageHeading, Select } from '../../shared/ui';
 
 const PRIMARY_ACTION: Record<WorkflowState['status'], { label: string; event: 'PLAY' | 'PAUSE' | 'RESUME' }> = {
   IDLE: { label: 'Iniciar simulação', event: 'PLAY' }, RUNNING: { label: 'Pausar', event: 'PAUSE' }, PAUSED: { label: 'Retomar', event: 'RESUME' }, STOPPED: { label: 'Iniciar simulação', event: 'PLAY' }, COMPLETED: { label: 'Iniciar simulação', event: 'PLAY' },
@@ -125,9 +125,9 @@ export default function EngineeringWorkflowPage() {
                 Library Management System
               </h2>
               <div className="canvas-tools">
-                <select
+                <Select
                   aria-label="Selecionar cenário"
-                  className="speed-select"
+
                   value={state.scenario}
                   onChange={(event) => {
                     setSelectedId(null);
@@ -142,7 +142,7 @@ export default function EngineeringWorkflowPage() {
                       {scenario.name}
                     </option>
                   ))}
-                </select>
+                </Select>
                 <button
                   className="icon-button"
                   aria-label="Tela cheia"
@@ -245,8 +245,8 @@ export default function EngineeringWorkflowPage() {
                 <SkipForward size={16} />
               </button>
               <FastForward size={14} className="muted ml-1" />
-              <select
-                className="speed-select"
+              <Select
+
                 aria-label="Velocidade"
                 value={state.speed}
                 onChange={(event) =>
@@ -261,7 +261,7 @@ export default function EngineeringWorkflowPage() {
                     {speed}x
                   </option>
                 ))}
-              </select>
+              </Select>
               <label className="checkbox-label ml-auto">
                 <input
                   type="checkbox"

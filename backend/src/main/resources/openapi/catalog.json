@@ -1,0 +1,703 @@
+{
+  "examples": {
+    "registerReader": {
+      "summary": "Criar sua conta READER",
+      "description": "Preencha nome, email próprio e senha de pelo menos 12 caracteres e no máximo 72 bytes UTF-8. A senha vazia é proposital; nenhuma conta é criada automaticamente.",
+      "value": {
+        "name": "Seu nome",
+        "email": "seu-email@example.com",
+        "password": ""
+      }
+    },
+    "loginWithOwnCredentials": {
+      "summary": "Entrar com suas credenciais",
+      "description": "Preencha suas credenciais. ADMIN ou LIBRARIAN pode escrever livros; o registro público cria somente READER.",
+      "value": {
+        "email": "seu-email@example.com",
+        "password": ""
+      }
+    },
+    "validBook": {
+      "summary": "Livro válido — criação",
+      "description": "O ISBN deve estar livre. Repita a mesma criação para observar 409. Exemplo ilustrativo.",
+      "value": {
+        "title": "Refactoring",
+        "author": "Martin Fowler",
+        "isbn": "9780201485677",
+        "publisher": "Addison-Wesley",
+        "publicationYear": 1999,
+        "category": "Engenharia de software",
+        "description": "Improving the Design of Existing Code.",
+        "totalCopies": 3,
+        "availableCopies": 2
+      }
+    },
+    "isbn10Book": {
+      "summary": "ISBN-10 equivalente — normalização",
+      "description": "Representa o mesmo ISBN do exemplo válido; cadastro normaliza para 9780201485677. Se já existir, retorna 409.",
+      "value": {
+        "title": "Refactoring",
+        "author": "Martin Fowler",
+        "isbn": "0-201-48567-2",
+        "publisher": "Addison-Wesley",
+        "publicationYear": 1999,
+        "category": "Engenharia de software",
+        "description": "Improving the Design of Existing Code.",
+        "totalCopies": 3,
+        "availableCopies": 2
+      }
+    },
+    "invalidCopies": {
+      "summary": "Inválido — disponíveis acima do total",
+      "description": "Espera 400; availableCopies não pode superar totalCopies.",
+      "value": {
+        "title": "Refactoring",
+        "author": "Martin Fowler",
+        "isbn": "9780201485677",
+        "publisher": "Addison-Wesley",
+        "publicationYear": 1999,
+        "category": "Engenharia de software",
+        "description": "Improving the Design of Existing Code.",
+        "totalCopies": 1,
+        "availableCopies": 2
+      }
+    },
+    "invalidIsbn": {
+      "summary": "Inválido — checksum ISBN",
+      "description": "Espera 400; último dígito não satisfaz o checksum.",
+      "value": {
+        "title": "Refactoring",
+        "author": "Martin Fowler",
+        "isbn": "9780201485678",
+        "publisher": "Addison-Wesley",
+        "publicationYear": 1999,
+        "category": "Engenharia de software",
+        "description": "Improving the Design of Existing Code.",
+        "totalCopies": 3,
+        "availableCopies": 2
+      }
+    },
+    "updateBook": {
+      "summary": "Atualizar livro existente",
+      "description": "Use o id real retornado pela criação. Mesmo ISBN é permitido no próprio livro.",
+      "value": {
+        "title": "Refactoring — exemplar atualizado",
+        "author": "Martin Fowler",
+        "isbn": "9780201485677",
+        "publisher": "Addison-Wesley",
+        "publicationYear": 1999,
+        "category": "Engenharia de software",
+        "description": "Improving the Design of Existing Code.",
+        "totalCopies": 3,
+        "availableCopies": 3
+      }
+    },
+    "promoteToLibrarian": {
+      "summary": "Permitir gerenciamento do acervo",
+      "description": "Somente ADMIN. Use o id de outro usuário de teste; a mudança revoga refresh tokens e passa a valer nas próximas requisições.",
+      "value": {
+        "role": "LIBRARIAN"
+      }
+    },
+    "readerRole": {
+      "summary": "Permitir somente leitura",
+      "description": "Somente ADMIN. Evite rebaixar sua única conta administrativa durante a demonstração.",
+      "value": {
+        "role": "READER"
+      }
+    },
+    "adminRole": {
+      "summary": "Permitir administração",
+      "description": "Somente ADMIN pode conceder este perfil; nunca é aceito no registro público.",
+      "value": {
+        "role": "ADMIN"
+      }
+    },
+    "activateUser": {
+      "summary": "Ativar usuário",
+      "description": "Somente ADMIN. Use um usuário de teste diferente do seu.",
+      "value": {
+        "active": true
+      }
+    },
+    "deactivateUser": {
+      "summary": "Desativar usuário",
+      "description": "Somente ADMIN. A conta deixa de autenticar e seus refresh tokens são revogados.",
+      "value": {
+        "active": false
+      }
+    },
+    "bookResponse": {
+      "summary": "Livro persistido",
+      "description": "Exemplo ilustrativo; IDs, datas e dados não representam registros criados automaticamente.",
+      "value": {
+        "id": "67cddf30-6cc2-441c-b098-55c5c581034a",
+        "title": "Refactoring",
+        "author": "Martin Fowler",
+        "isbn": "9780201485677",
+        "publisher": "Addison-Wesley",
+        "publicationYear": 1999,
+        "category": "Engenharia de software",
+        "description": "Improving the Design of Existing Code.",
+        "totalCopies": 3,
+        "availableCopies": 2,
+        "createdAt": "2026-01-15T10:00:00Z",
+        "updatedAt": "2026-01-15T10:00:00Z"
+      }
+    },
+    "updatedBookResponse": {
+      "summary": "Livro atualizado",
+      "description": "Exemplo ilustrativo; IDs, datas e dados não representam registros criados automaticamente.",
+      "value": {
+        "id": "67cddf30-6cc2-441c-b098-55c5c581034a",
+        "title": "Refactoring — exemplar atualizado",
+        "author": "Martin Fowler",
+        "isbn": "9780201485677",
+        "publisher": "Addison-Wesley",
+        "publicationYear": 1999,
+        "category": "Engenharia de software",
+        "description": "Improving the Design of Existing Code.",
+        "totalCopies": 3,
+        "availableCopies": 3,
+        "createdAt": "2026-01-15T10:00:00Z",
+        "updatedAt": "2026-01-15T10:05:00Z"
+      }
+    },
+    "bookPage": {
+      "summary": "Página de livros",
+      "description": "Exemplo ilustrativo; IDs, datas e dados não representam registros criados automaticamente.",
+      "value": {
+        "content": [
+          {
+            "id": "67cddf30-6cc2-441c-b098-55c5c581034a",
+            "title": "Refactoring",
+            "author": "Martin Fowler",
+            "isbn": "9780201485677",
+            "publisher": "Addison-Wesley",
+            "publicationYear": 1999,
+            "category": "Engenharia de software",
+            "description": "Improving the Design of Existing Code.",
+            "totalCopies": 3,
+            "availableCopies": 2,
+            "createdAt": "2026-01-15T10:00:00Z",
+            "updatedAt": "2026-01-15T10:00:00Z"
+          }
+        ],
+        "number": 0,
+        "size": 20,
+        "totalElements": 1,
+        "totalPages": 1
+      }
+    },
+    "userResponse": {
+      "summary": "Usuário público",
+      "description": "Exemplo ilustrativo; IDs, datas e dados não representam registros criados automaticamente.",
+      "value": {
+        "id": "a4b2658c-7b46-4af7-a55d-a705d36f0a3e",
+        "name": "Pessoa leitora",
+        "email": "leitor@example.com",
+        "role": "READER",
+        "active": true,
+        "createdAt": "2026-01-15T10:00:00Z",
+        "updatedAt": "2026-01-15T10:00:00Z"
+      }
+    },
+    "librarianResponse": {
+      "summary": "Perfil atualizado",
+      "description": "Exemplo ilustrativo; IDs, datas e dados não representam registros criados automaticamente.",
+      "value": {
+        "id": "a4b2658c-7b46-4af7-a55d-a705d36f0a3e",
+        "name": "Pessoa leitora",
+        "email": "leitor@example.com",
+        "role": "LIBRARIAN",
+        "active": true,
+        "createdAt": "2026-01-15T10:00:00Z",
+        "updatedAt": "2026-01-15T10:05:00Z"
+      }
+    },
+    "inactiveUserResponse": {
+      "summary": "Conta desativada",
+      "description": "Exemplo ilustrativo; IDs, datas e dados não representam registros criados automaticamente.",
+      "value": {
+        "id": "a4b2658c-7b46-4af7-a55d-a705d36f0a3e",
+        "name": "Pessoa leitora",
+        "email": "leitor@example.com",
+        "role": "READER",
+        "active": false,
+        "createdAt": "2026-01-15T10:00:00Z",
+        "updatedAt": "2026-01-15T10:05:00Z"
+      }
+    },
+    "userPage": {
+      "summary": "Página de usuários",
+      "description": "Exemplo ilustrativo; IDs, datas e dados não representam registros criados automaticamente.",
+      "value": {
+        "content": [
+          {
+            "id": "a4b2658c-7b46-4af7-a55d-a705d36f0a3e",
+            "name": "Pessoa leitora",
+            "email": "leitor@example.com",
+            "role": "READER",
+            "active": true,
+            "createdAt": "2026-01-15T10:00:00Z",
+            "updatedAt": "2026-01-15T10:00:00Z"
+          }
+        ],
+        "number": 0,
+        "size": 20,
+        "totalElements": 1,
+        "totalPages": 1
+      }
+    },
+    "authResponse": {
+      "summary": "Sessão autenticada",
+      "description": "Este token é apenas texto ilustrativo e não autentica. Use accessToken da resposta real; o refresh é enviado somente em cookie HttpOnly. expiresIn depende da configuração.",
+      "value": {
+        "accessToken": "TOKEN_GERADO_PELA_SUA_REQUISICAO_DE_LOGIN",
+        "tokenType": "Bearer",
+        "expiresIn": 900,
+        "user": {
+          "id": "a4b2658c-7b46-4af7-a55d-a705d36f0a3e",
+          "name": "Pessoa leitora",
+          "email": "leitor@example.com",
+          "role": "READER",
+          "active": true,
+          "createdAt": "2026-01-15T10:00:00Z",
+          "updatedAt": "2026-01-15T10:00:00Z"
+        }
+      }
+    },
+    "dashboardResponse": {
+      "summary": "Resumo ilustrativo do acervo",
+      "description": "Exemplo ilustrativo; IDs, datas e dados não representam registros criados automaticamente.",
+      "value": {
+        "totalTitles": 1,
+        "totalCopies": 3,
+        "availableCopies": 2,
+        "unavailableCopies": 1,
+        "totalCategories": 1,
+        "recentBooks": [
+          {
+            "id": "67cddf30-6cc2-441c-b098-55c5c581034a",
+            "title": "Refactoring",
+            "author": "Martin Fowler",
+            "isbn": "9780201485677",
+            "publisher": "Addison-Wesley",
+            "publicationYear": 1999,
+            "category": "Engenharia de software",
+            "description": "Improving the Design of Existing Code.",
+            "totalCopies": 3,
+            "availableCopies": 2,
+            "createdAt": "2026-01-15T10:00:00Z",
+            "updatedAt": "2026-01-15T10:00:00Z"
+          }
+        ]
+      }
+    },
+    "validationError": {
+      "summary": "Campos inválidos",
+      "description": "O mapa errors aparece em falhas de Bean Validation; erros de regra de negócio podem trazer somente detail. Mensagens dependem da validação.",
+      "value": {
+        "type": "about:blank",
+        "title": "Bad Request",
+        "status": 400,
+        "detail": "Verifique os campos informados.",
+        "instance": "/api/v1/books",
+        "errors": {
+          "title": "não deve estar em branco"
+        }
+      }
+    },
+    "unauthenticated": {
+      "summary": "Autenticação ausente ou inválida",
+      "description": "Exemplo ilustrativo; IDs, datas e dados não representam registros criados automaticamente.",
+      "value": {
+        "type": "about:blank",
+        "title": "Unauthorized",
+        "status": 401,
+        "detail": "Autenticação necessária ou inválida.",
+        "instance": "/api/v1/books"
+      }
+    },
+    "invalidCredentials": {
+      "summary": "Credenciais inválidas",
+      "description": "Exemplo ilustrativo; IDs, datas e dados não representam registros criados automaticamente.",
+      "value": {
+        "type": "about:blank",
+        "title": "Unauthorized",
+        "status": 401,
+        "detail": "Credenciais ou sessão inválidas.",
+        "instance": "/api/v1/auth/login"
+      }
+    },
+    "invalidSession": {
+      "summary": "Refresh inválido ou expirado",
+      "description": "Exemplo ilustrativo; IDs, datas e dados não representam registros criados automaticamente.",
+      "value": {
+        "type": "about:blank",
+        "title": "Unauthorized",
+        "status": 401,
+        "detail": "Sessão inválida.",
+        "instance": "/api/v1/auth/refresh"
+      }
+    },
+    "forbidden": {
+      "summary": "Perfil sem permissão",
+      "description": "Exemplo ilustrativo; IDs, datas e dados não representam registros criados automaticamente.",
+      "value": {
+        "type": "about:blank",
+        "title": "Forbidden",
+        "status": 403,
+        "detail": "Permissão insuficiente.",
+        "instance": "/api/v1/books"
+      }
+    },
+    "csrfForbidden": {
+      "summary": "Header ou origem rejeitados",
+      "description": "Exemplo ilustrativo; IDs, datas e dados não representam registros criados automaticamente.",
+      "value": {
+        "type": "about:blank",
+        "title": "Forbidden",
+        "status": 403,
+        "detail": "Requisição de autenticação não permitida.",
+        "instance": "/api/v1/auth/login"
+      }
+    },
+    "bookNotFound": {
+      "summary": "Livro não encontrado",
+      "description": "Exemplo ilustrativo; IDs, datas e dados não representam registros criados automaticamente.",
+      "value": {
+        "type": "about:blank",
+        "title": "Not Found",
+        "status": 404,
+        "detail": "Livro não encontrado.",
+        "instance": "/api/v1/books/67cddf30-6cc2-441c-b098-55c5c581034a"
+      }
+    },
+    "userNotFound": {
+      "summary": "Usuário não encontrado",
+      "description": "Exemplo ilustrativo; IDs, datas e dados não representam registros criados automaticamente.",
+      "value": {
+        "type": "about:blank",
+        "title": "Not Found",
+        "status": 404,
+        "detail": "Usuário não encontrado.",
+        "instance": "/api/v1/users/a4b2658c-7b46-4af7-a55d-a705d36f0a3e"
+      }
+    },
+    "duplicateIsbn": {
+      "summary": "ISBN já existente",
+      "description": "Exemplo ilustrativo; IDs, datas e dados não representam registros criados automaticamente.",
+      "value": {
+        "type": "about:blank",
+        "title": "Conflict",
+        "status": 409,
+        "detail": "ISBN já cadastrado.",
+        "instance": "/api/v1/books"
+      }
+    },
+    "duplicateEmail": {
+      "summary": "Email já existente",
+      "description": "Exemplo ilustrativo; IDs, datas e dados não representam registros criados automaticamente.",
+      "value": {
+        "type": "about:blank",
+        "title": "Conflict",
+        "status": 409,
+        "detail": "Email já cadastrado.",
+        "instance": "/api/v1/auth/register"
+      }
+    },
+    "rateLimited": {
+      "summary": "Limite de tentativas",
+      "description": "Exemplo ilustrativo; IDs, datas e dados não representam registros criados automaticamente.",
+      "value": {
+        "type": "about:blank",
+        "title": "Too Many Requests",
+        "status": 429,
+        "detail": "Limite de tentativas atingido. Tente novamente mais tarde.",
+        "instance": "/api/v1/auth/login"
+      }
+    },
+    "registrationValidation": {
+      "summary": "Dados de autenticação inválidos",
+      "description": "Exemplo ilustrativo de Problem Details; mensagens específicas podem variar conforme a validação.",
+      "value": {
+        "type": "about:blank",
+        "title": "Bad Request",
+        "status": 400,
+        "detail": "Verifique os campos informados.",
+        "instance": "/api/v1/auth/register",
+        "errors": {
+          "email": "deve ser um endereço de e-mail bem formado"
+        }
+      }
+    },
+    "roleValidation": {
+      "summary": "Perfil obrigatório",
+      "description": "Exemplo ilustrativo de Problem Details; mensagens específicas podem variar conforme a validação.",
+      "value": {
+        "type": "about:blank",
+        "title": "Bad Request",
+        "status": 400,
+        "detail": "Verifique os campos informados.",
+        "instance": "/api/v1/users/{id}/role",
+        "errors": {
+          "role": "não deve ser nulo"
+        }
+      }
+    },
+    "statusValidation": {
+      "summary": "Estado obrigatório",
+      "description": "Exemplo ilustrativo de Problem Details; mensagens específicas podem variar conforme a validação.",
+      "value": {
+        "type": "about:blank",
+        "title": "Bad Request",
+        "status": 400,
+        "detail": "Verifique os campos informados.",
+        "instance": "/api/v1/users/{id}/status",
+        "errors": {
+          "active": "não deve ser nulo"
+        }
+      }
+    },
+    "invalidPagination": {
+      "summary": "Parâmetro de consulta inválido",
+      "description": "Exemplo ilustrativo de Problem Details; mensagens específicas podem variar conforme a validação.",
+      "value": {
+        "type": "about:blank",
+        "title": "Bad Request",
+        "status": 400,
+        "detail": "Paginação inválida.",
+        "instance": "/api/v1/books"
+      }
+    },
+    "invalidIdentifier": {
+      "summary": "UUID inválido",
+      "description": "Exemplo ilustrativo de Problem Details; mensagens específicas podem variar conforme a validação.",
+      "value": {
+        "type": "about:blank",
+        "title": "Bad Request",
+        "status": 400,
+        "detail": "O identificador informado não é um UUID válido.",
+        "instance": "/api/v1/books/identificador-invalido"
+      }
+    },
+    "concurrentChange": {
+      "summary": "Conflito de persistência",
+      "description": "Exemplo ilustrativo de Problem Details; mensagens específicas podem variar conforme a validação.",
+      "value": {
+        "type": "about:blank",
+        "title": "Conflict",
+        "status": 409,
+        "detail": "Registro duplicado ou alterado simultaneamente. Atualize os dados e tente novamente.",
+        "instance": "/api/v1/books/{id}"
+      }
+    }
+  },
+  "operations": {
+    "POST /api/v1/auth/register": {
+      "operationId": "register",
+      "description": "Cria somente READER ativo. Preencha suas próprias credenciais no exemplo; email é normalizado e único. Não envie role ou active. Retorna access token e cookie HttpOnly; não cria administradores.",
+      "successStatus": "201",
+      "successExample": "authResponse",
+      "requestExamples": [
+        "registerReader"
+      ],
+      "errorExamples": {
+        "400": "registrationValidation",
+        "403": "csrfForbidden",
+        "409": "duplicateEmail",
+        "429": "rateLimited"
+      }
+    },
+    "POST /api/v1/auth/login": {
+      "operationId": "login",
+      "description": "Autentica uma conta existente e ativa. Preencha sua senha, execute e copie accessToken da resposta real para Authorize, sem prefixar Bearer. O navegador guarda automaticamente o cookie HttpOnly de refresh.",
+      "successStatus": "200",
+      "successExample": "authResponse",
+      "requestExamples": [
+        "loginWithOwnCredentials"
+      ],
+      "errorExamples": {
+        "400": "registrationValidation",
+        "401": "invalidCredentials",
+        "403": "csrfForbidden",
+        "429": "rateLimited"
+      }
+    },
+    "POST /api/v1/auth/refresh": {
+      "operationId": "refresh",
+      "description": "Sem corpo JSON. Após login na mesma origem, o navegador envia o cookie HttpOnly automaticamente. Rotaciona o cookie; substitua o token em Authorize pelo novo accessToken. Reutilização de refresh antigo revoga a família.",
+      "successStatus": "200",
+      "successExample": "authResponse",
+      "requestExamples": [],
+      "errorExamples": {
+        "401": "invalidSession",
+        "403": "csrfForbidden"
+      }
+    },
+    "POST /api/v1/auth/logout": {
+      "operationId": "logout",
+      "description": "Sem corpo JSON. Revoga a família do refresh presente e limpa o cookie. Idempotente quando não há sessão. Depois clique Logout em Authorize para remover o access token da memória da UI; um token já emitido expira conforme sua validade.",
+      "successStatus": "204",
+      "successExample": null,
+      "requestExamples": [],
+      "errorExamples": {
+        "403": "csrfForbidden"
+      }
+    },
+    "GET /api/v1/auth/me": {
+      "operationId": "currentUser",
+      "description": "Requer Bearer válido. Retorna perfil e estado atuais da conta; hashes e refresh tokens nunca são expostos.",
+      "successStatus": "200",
+      "successExample": "userResponse",
+      "requestExamples": [],
+      "errorExamples": {
+        "401": "unauthenticated",
+        "403": "forbidden"
+      }
+    },
+    "POST /api/v1/books": {
+      "operationId": "createBook",
+      "description": "ADMIN ou LIBRARIAN. ISBN-10/13 deve ter checksum válido e ser único; ISBN-10 vira ISBN-13. Ano entre 1 e atual; quantidades não negativas; disponíveis ≤ total. Exemplos inválidos demonstram 400. Repetir validBook após criar demonstra 409.",
+      "successStatus": "201",
+      "successExample": "bookResponse",
+      "requestExamples": [
+        "validBook",
+        "isbn10Book",
+        "invalidCopies",
+        "invalidIsbn"
+      ],
+      "errorExamples": {
+        "400": "validationError",
+        "401": "unauthenticated",
+        "403": "forbidden",
+        "409": "duplicateIsbn"
+      }
+    },
+    "GET /api/v1/books": {
+      "operationId": "listBooks",
+      "description": "Qualquer usuário autenticado. Filtros combinam por AND; título/autor/ISBN aceitam fragmentos, categoria é exata sem distinguir maiúsculas. ISBN-10 completo válido encontra seu equivalente de 13 dígitos. Paginação começa em 0; ordenação segue os valores permitidos.",
+      "successStatus": "200",
+      "successExample": "bookPage",
+      "requestExamples": [],
+      "errorExamples": {
+        "400": "invalidPagination",
+        "401": "unauthenticated",
+        "403": "forbidden"
+      }
+    },
+    "GET /api/v1/books/{id}": {
+      "operationId": "getBook",
+      "description": "Qualquer usuário autenticado. Use o UUID real retornado pela criação ou listagem. Um identificador ilustrativo pode retornar 404.",
+      "successStatus": "200",
+      "successExample": "bookResponse",
+      "requestExamples": [],
+      "errorExamples": {
+        "400": "invalidIdentifier",
+        "401": "unauthenticated",
+        "403": "forbidden",
+        "404": "bookNotFound"
+      }
+    },
+    "PUT /api/v1/books/{id}": {
+      "operationId": "updateBook",
+      "description": "ADMIN ou LIBRARIAN. Substitui os campos editáveis com as mesmas validações da criação. Use o id real do livro; manter seu próprio ISBN é permitido, usar o ISBN de outro livro retorna 409.",
+      "successStatus": "200",
+      "successExample": "updatedBookResponse",
+      "requestExamples": [
+        "updateBook"
+      ],
+      "errorExamples": {
+        "400": "validationError",
+        "401": "unauthenticated",
+        "403": "forbidden",
+        "404": "bookNotFound",
+        "409": "duplicateIsbn"
+      }
+    },
+    "DELETE /api/v1/books/{id}": {
+      "operationId": "deleteBook",
+      "description": "ADMIN ou LIBRARIAN. Exclui o cadastro identificado pelo UUID real. Sucesso 204 não possui corpo; uma consulta posterior retorna 404.",
+      "successStatus": "204",
+      "successExample": null,
+      "requestExamples": [],
+      "errorExamples": {
+        "400": "invalidIdentifier",
+        "401": "unauthenticated",
+        "403": "forbidden",
+        "404": "bookNotFound",
+        "409": "concurrentChange"
+      }
+    },
+    "GET /api/v1/users": {
+      "operationId": "listUsers",
+      "description": "Somente ADMIN. Lista dados públicos paginados; nunca retorna senha, hash ou tokens. Ordenação e tamanho de página são validados.",
+      "successStatus": "200",
+      "successExample": "userPage",
+      "requestExamples": [],
+      "errorExamples": {
+        "400": "invalidPagination",
+        "401": "unauthenticated",
+        "403": "forbidden"
+      }
+    },
+    "GET /api/v1/users/{id}": {
+      "operationId": "getUser",
+      "description": "Somente ADMIN. Use o UUID real do registro/listagem; a resposta nunca contém credenciais.",
+      "successStatus": "200",
+      "successExample": "userResponse",
+      "requestExamples": [],
+      "errorExamples": {
+        "400": "invalidIdentifier",
+        "401": "unauthenticated",
+        "403": "forbidden",
+        "404": "userNotFound"
+      }
+    },
+    "PATCH /api/v1/users/{id}/role": {
+      "operationId": "changeUserRole",
+      "description": "Somente ADMIN. Altera role para ADMIN, LIBRARIAN ou READER; revoga refresh tokens e aplica o novo papel nas requisições seguintes. Use outro usuário de teste, preservando uma conta administrativa.",
+      "successStatus": "200",
+      "successExample": "librarianResponse",
+      "requestExamples": [
+        "promoteToLibrarian",
+        "readerRole",
+        "adminRole"
+      ],
+      "errorExamples": {
+        "400": "roleValidation",
+        "401": "unauthenticated",
+        "403": "forbidden",
+        "404": "userNotFound"
+      }
+    },
+    "PATCH /api/v1/users/{id}/status": {
+      "operationId": "changeUserStatus",
+      "description": "Somente ADMIN. Ativa/desativa a conta; altera a validade de sessões e revoga refresh tokens. Use um usuário de teste diferente do seu.",
+      "successStatus": "200",
+      "successExample": "inactiveUserResponse",
+      "requestExamples": [
+        "deactivateUser",
+        "activateUser"
+      ],
+      "errorExamples": {
+        "400": "statusValidation",
+        "401": "unauthenticated",
+        "403": "forbidden",
+        "404": "userNotFound"
+      }
+    },
+    "GET /api/v1/dashboard/summary": {
+      "operationId": "dashboardSummary",
+      "description": "Qualquer usuário autenticado. Indicadores calculados do PostgreSQL e livros recentes com limite configurado. Os valores mostrados abaixo são exemplos de formato, não métricas reais do acervo.",
+      "successStatus": "200",
+      "successExample": "dashboardResponse",
+      "requestExamples": [],
+      "errorExamples": {
+        "401": "unauthenticated",
+        "403": "forbidden"
+      }
+    }
+  }
+}

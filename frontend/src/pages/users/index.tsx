@@ -11,6 +11,7 @@ import {
   ErrorBanner,
   LoadingState,
   PageHeading,
+  Select,
 } from '../../shared/ui';
 
 export default function UsersPage() {
@@ -74,7 +75,7 @@ export default function UsersPage() {
                         <div className="small muted mt-1">{user.email}</div>
                       </td>
                       <td>
-                        <select
+                        <Select
                           className="select"
                           aria-label={`Perfil de ${user.name}`}
                           value={user.role}
@@ -89,7 +90,7 @@ export default function UsersPage() {
                           <option value="READER">Leitor</option>
                           <option value="LIBRARIAN">Bibliotecário</option>
                           <option value="ADMIN">Administrador</option>
-                        </select>
+                        </Select>
                       </td>
                       <td>
                         <span
